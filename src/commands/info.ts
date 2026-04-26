@@ -82,5 +82,5 @@ export async function execute(
     .setDescription(SECTIONS.map((s) => `**${s.title}**\n${s.lines.join('\n')}`).join('\n\n'))
     .addFields({ name: '✨ Passive features', value: PASSIVE_LINES.join('\n\n') });
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply({ embeds: [embed] });
 }
