@@ -1,6 +1,7 @@
 import {
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
+  type AutocompleteInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
 import type Database from 'better-sqlite3';
@@ -58,7 +59,7 @@ export const data = new SlashCommandBuilder()
           .setName('key')
           .setDescription('Config key')
           .setRequired(true)
-          .addChoices(...ALLOWED_KEYS.map((k) => ({ name: k, value: k }))),
+          .setAutocomplete(true),
       )
       .addStringOption((o) =>
         o.setName('value').setDescription('New value (use "null" to clear)').setRequired(true),
@@ -66,6 +67,12 @@ export const data = new SlashCommandBuilder()
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild.toString())
   .setDMPermission(false);
+
+export async function autocomplete(interaction: AutocompleteInteraction): Promise<void> {
+  const query = interaction.options.getFocused().toLowerCase();
+  const matches = ALLOWED_KEYS.filter((k) => k.toLowerCase().includes(query)).slice(0, 25);
+  await interaction.respond(matches.map((k) => ({ name: k, value: k })));
+}
 
 export async function execute(
   interaction: ChatInputCommandInteraction,

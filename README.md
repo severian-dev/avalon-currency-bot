@@ -37,7 +37,7 @@ The full feature spec lives in [`SPECIFICATION.md`](./SPECIFICATION.md).
 
 - Node.js 20 or later
 - A Discord application with a bot token ([Discord Developer Portal](https://discord.com/developers/applications))
-- The bot invited to your server with at least: `Send Messages`, `Embed Links`, `Add Reactions`, `Read Message History`, `Use Application Commands`. To DM redemption payloads, users must allow DMs from server members.
+- The bot invited to your server with at least: `Send Messages`, `Send Messages in Threads`, `Embed Links`, `Add Reactions`, `Read Message History`, `Use Application Commands`. `Send Messages in Threads` is required so the bot can post the per-thread crystal-reward acknowledgement in forums you've configured for payouts. To DM redemption payloads, users must allow DMs from server members.
 - Privileged gateway intents enabled in the Developer Portal: **Message Content Intent** (for activity tracking), **Server Members Intent** (for `/balance @user` resolution against members)
 
 ## Setup

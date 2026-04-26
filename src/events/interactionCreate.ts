@@ -7,6 +7,7 @@ import type { BotClient } from '../client.js';
 import type { BotEnv } from '../config/schema.js';
 import { handle as handleDuelButton } from '../handlers/duelButton.js';
 import * as redeemCommand from '../commands/redeem.js';
+import * as configCommand from '../commands/config.js';
 
 export const name = 'interactionCreate';
 
@@ -16,12 +17,14 @@ export async function execute(
   env: BotEnv,
 ): Promise<void> {
   if (interaction.isAutocomplete()) {
-    if (interaction.commandName === 'redeem') {
-      try {
+    try {
+      if (interaction.commandName === 'redeem') {
         await redeemCommand.autocomplete(interaction, db);
-      } catch (err) {
-        console.error('autocomplete error:', err);
+      } else if (interaction.commandName === 'config') {
+        await configCommand.autocomplete(interaction);
       }
+    } catch (err) {
+      console.error('autocomplete error:', err);
     }
     return;
   }
