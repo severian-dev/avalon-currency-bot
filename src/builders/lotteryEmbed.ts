@@ -6,14 +6,15 @@ export function lotteryInfoEmbed(
   round: LotteryRoundRow,
   ticketPrice: number,
   yourTickets: number,
+  emoji: string,
 ): EmbedBuilder {
   const drawsAtUnix = Math.floor(new Date(round.draws_at).getTime() / 1000);
   return new EmbedBuilder()
     .setTitle('🎟️ Crystal Lottery')
     .setColor(0x9b59ff)
     .addFields(
-      { name: 'Pot', value: crystals(round.pot), inline: true },
-      { name: 'Ticket price', value: crystals(ticketPrice), inline: true },
+      { name: 'Pot', value: crystals(round.pot, emoji), inline: true },
+      { name: 'Ticket price', value: crystals(ticketPrice, emoji), inline: true },
       { name: 'Your tickets', value: String(yourTickets), inline: true },
       { name: 'Draws', value: `<t:${drawsAtUnix}:R> (<t:${drawsAtUnix}:f>)` },
     )
@@ -23,6 +24,7 @@ export function lotteryInfoEmbed(
 export function lotteryDrawEmbed(
   pot: number,
   winnerUserId: string | null,
+  emoji: string,
 ): EmbedBuilder {
   if (!winnerUserId) {
     return new EmbedBuilder()
@@ -32,6 +34,6 @@ export function lotteryDrawEmbed(
   }
   return new EmbedBuilder()
     .setTitle('🎟️ Lottery drawn!')
-    .setDescription(`<@${winnerUserId}> wins **${crystals(pot)}**!`)
+    .setDescription(`<@${winnerUserId}> wins **${crystals(pot, emoji)}**!`)
     .setColor(0x2ecc71);
 }

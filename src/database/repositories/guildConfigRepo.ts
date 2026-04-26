@@ -37,6 +37,8 @@ export interface GuildConfigRow {
   lottery_ticket_price: number;
   lottery_draw_channel_id: string | null;
   lottery_period_hours: number;
+
+  crystal_emoji: string | null;
 }
 
 export const ALLOWED_KEYS = [
@@ -70,6 +72,7 @@ export const ALLOWED_KEYS = [
   'lottery_ticket_price',
   'lottery_draw_channel_id',
   'lottery_period_hours',
+  'crystal_emoji',
 ] as const;
 
 export type ConfigKey = (typeof ALLOWED_KEYS)[number];
@@ -95,6 +98,11 @@ export function set(
 ): void {
   ensure(db, guildId);
   db.prepare(`UPDATE guild_config SET ${key} = ? WHERE guild_id = ?`).run(value, guildId);
+}
+
+export function getCrystalEmoji(db: Database.Database, guildId: string): string {
+  const row = get(db, guildId);
+  return row.crystal_emoji && row.crystal_emoji.trim() !== '' ? row.crystal_emoji : '💎';
 }
 
 export function listAllEnabled(db: Database.Database): GuildConfigRow[] {

@@ -28,6 +28,7 @@ export async function execute(
   if (!interaction.guildId) return;
   const sub = interaction.options.getSubcommand();
   const config = guildConfigRepo.get(db, interaction.guildId);
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
 
   if (!config.lottery_enabled) {
     await interaction.reply({
@@ -41,7 +42,7 @@ export async function execute(
     const round = ensureOpenRound(db, interaction.guildId);
     const yourTickets = lotteryRepo.userTickets(db, round.id, interaction.user.id);
     await interaction.reply({
-      embeds: [lotteryInfoEmbed(round, config.lottery_ticket_price, yourTickets)],
+      embeds: [lotteryInfoEmbed(round, config.lottery_ticket_price, yourTickets, emoji)],
     });
     return;
   }
@@ -53,14 +54,14 @@ export async function execute(
       const cost = count * config.lottery_ticket_price;
       await interaction.reply({
         content:
-          `🎟️ Bought ${count} ticket${count === 1 ? '' : 's'} for ${crystals(cost)}.\n` +
+          `🎟️ Bought ${count} ticket${count === 1 ? '' : 's'} for ${crystals(cost, emoji)}.\n` +
           `You now hold ${r.totalTickets} ticket${r.totalTickets === 1 ? '' : 's'}.\n` +
-          `Pot: ${crystals(r.pot)} · New balance: ${crystals(r.newBalance)}`,
+          `Pot: ${crystals(r.pot, emoji)} · New balance: ${crystals(r.newBalance, emoji)}`,
       });
     } catch (err) {
       if (err instanceof InsufficientFundsError) {
         await interaction.reply({
-          content: `⛔ You only have ${crystals(err.balance)}.`,
+          content: `⛔ You only have ${crystals(err.balance, emoji)}.`,
           ephemeral: true,
         });
         return;

@@ -33,11 +33,15 @@ export async function autocomplete(
   if (!interaction.guildId) return;
   const focused = interaction.options.getFocused();
   const items = shopRepo.searchActive(db, interaction.guildId, focused, 25);
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
   await interaction.respond(
-    items.map((i) => ({
-      name: `#${i.id} · ${i.name} — ${i.price} 💎${i.stock !== null ? ` (${i.stock} left)` : ''}`.slice(0, 100),
-      value: i.id,
-    })),
+    items.map((i) => {
+      const itemPrefix = i.emoji ? `${i.emoji} ` : '';
+      return {
+        name: `#${i.id} · ${itemPrefix}${i.name} — ${i.price} ${emoji}${i.stock !== null ? ` (${i.stock} left)` : ''}`.slice(0, 100),
+        value: i.id,
+      };
+    }),
   );
 }
 
@@ -57,13 +61,15 @@ export async function execute(
     return;
   }
 
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
+
   let result;
   try {
     result = redeem(db, interaction.guildId, interaction.user.id, itemId);
   } catch (err) {
     if (err instanceof InsufficientFundsError) {
       await interaction.reply({
-        content: `⛔ You only have ${crystals(err.balance)}. This item costs more.`,
+        content: `⛔ You only have ${crystals(err.balance, emoji)}. This item costs more.`,
         ephemeral: true,
       });
       return;
@@ -75,15 +81,17 @@ export async function execute(
     throw err;
   }
 
+  const item = shopRepo.getById(db, interaction.guildId, result.itemId);
+  const itemDisplay = item?.emoji ? `${item.emoji} ${result.itemName}` : result.itemName;
+
   await interaction.reply({
     content:
-      `🎁 Redeemed **${result.itemName}** for ${crystals(result.pricePaid)}.\n` +
-      `New balance: ${crystals(result.newBalance)}\n` +
+      `🎁 Redeemed **${itemDisplay}** for ${crystals(result.pricePaid, emoji)}.\n` +
+      `New balance: ${crystals(result.newBalance, emoji)}\n` +
       `An admin will fulfill your redemption. Redemption ID: **#${result.redemptionId}**`,
     ephemeral: true,
   });
 
-  const item = shopRepo.getById(db, interaction.guildId, result.itemId);
   const redemption = redemptionRepo.getById(db, interaction.guildId, result.redemptionId);
   if (item && redemption) {
     try {
@@ -91,7 +99,7 @@ export async function execute(
       if (channel && channel.type === ChannelType.GuildText) {
         await (channel as TextChannel).send({
           content: `<@${interaction.user.id}>`,
-          embeds: [pendingRedemptionEmbed(redemption, item)],
+          embeds: [pendingRedemptionEmbed(redemption, item, emoji)],
           allowedMentions: { users: [] },
         });
       }

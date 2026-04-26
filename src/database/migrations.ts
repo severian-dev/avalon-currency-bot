@@ -1,5 +1,17 @@
 import type Database from 'better-sqlite3';
 
+function addColumnIfMissing(
+  db: Database.Database,
+  table: string,
+  column: string,
+  definition: string,
+): void {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
 export function runMigrations(db: Database.Database): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
@@ -32,6 +44,7 @@ export function runMigrations(db: Database.Database): void {
       price       INTEGER NOT NULL,
       stock       INTEGER,
       payload     TEXT,
+      emoji       TEXT,
       active      INTEGER NOT NULL DEFAULT 1,
       created_by  TEXT,
       created_at  TEXT NOT NULL DEFAULT (datetime('now'))
@@ -174,7 +187,13 @@ export function runMigrations(db: Database.Database): void {
       lottery_enabled                   INTEGER NOT NULL DEFAULT 0,
       lottery_ticket_price              INTEGER NOT NULL DEFAULT 100,
       lottery_draw_channel_id           TEXT,
-      lottery_period_hours              INTEGER NOT NULL DEFAULT 168
+      lottery_period_hours              INTEGER NOT NULL DEFAULT 168,
+
+      crystal_emoji                     TEXT
     );
   `);
+
+  // Idempotent column adds for already-deployed databases.
+  addColumnIfMissing(db, 'guild_config', 'crystal_emoji', 'TEXT');
+  addColumnIfMissing(db, 'shop_items', 'emoji', 'TEXT');
 }

@@ -38,9 +38,10 @@ export async function execute(
   }
 
   const config = guildConfigRepo.get(db, interaction.guildId);
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
   if (stake < config.bet_min || stake > config.bet_max) {
     await interaction.reply({
-      content: `Stake must be between ${crystals(config.bet_min)} and ${crystals(config.bet_max)}.`,
+      content: `Stake must be between ${crystals(config.bet_min, emoji)} and ${crystals(config.bet_max, emoji)}.`,
       ephemeral: true,
     });
     return;
@@ -49,7 +50,7 @@ export async function execute(
   const challengerBalance = userRepo.getBalance(db, interaction.guildId, interaction.user.id);
   if (challengerBalance < stake) {
     await interaction.reply({
-      content: `⛔ You only have ${crystals(challengerBalance)}.`,
+      content: `⛔ You only have ${crystals(challengerBalance, emoji)}.`,
       ephemeral: true,
     });
     return;
@@ -58,7 +59,7 @@ export async function execute(
   const opponentBalance = userRepo.getBalance(db, interaction.guildId, opponent.id);
   if (opponentBalance < stake) {
     await interaction.reply({
-      content: `⛔ <@${opponent.id}> only has ${crystals(opponentBalance)} — not enough to accept.`,
+      content: `⛔ <@${opponent.id}> only has ${crystals(opponentBalance, emoji)} — not enough to accept.`,
       allowedMentions: { users: [] },
     });
     return;
@@ -75,7 +76,7 @@ export async function execute(
 
   await interaction.reply({
     content: `<@${opponent.id}>`,
-    embeds: [duelChallengeEmbed(interaction.user.id, opponent.id, stake)],
+    embeds: [duelChallengeEmbed(interaction.user.id, opponent.id, stake, emoji)],
     components: [duelButtons(duelKey)],
     allowedMentions: { users: [opponent.id] },
   });

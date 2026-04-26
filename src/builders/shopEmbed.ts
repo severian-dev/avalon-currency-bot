@@ -1,9 +1,9 @@
 import { EmbedBuilder } from 'discord.js';
 import type { ShopItemRow } from '../database/repositories/shopRepo.js';
-import { CRYSTAL, crystals } from '../utils/formatting.js';
+import { crystals } from '../utils/formatting.js';
 
-export function shopEmbed(items: ShopItemRow[]): EmbedBuilder {
-  const embed = new EmbedBuilder().setTitle(`${CRYSTAL} Crystal Shop`).setColor(0x9b59ff);
+export function shopEmbed(items: ShopItemRow[], emoji: string): EmbedBuilder {
+  const embed = new EmbedBuilder().setTitle(`${emoji} Crystal Shop`).setColor(0x9b59ff);
 
   if (items.length === 0) {
     embed.setDescription('The shop is empty. Check back later.');
@@ -14,8 +14,9 @@ export function shopEmbed(items: ShopItemRow[]): EmbedBuilder {
   for (const item of visible) {
     const stock = item.stock === null ? '∞' : `${item.stock} left`;
     const desc = item.description ? `${item.description}\n` : '';
+    const itemEmoji = item.emoji ? `${item.emoji} ` : '';
     embed.addFields({
-      name: `#${item.id} · ${item.name} — ${crystals(item.price)}`,
+      name: `#${item.id} · ${itemEmoji}${item.name} — ${crystals(item.price, emoji)}`,
       value: `${desc}Stock: ${stock}`,
     });
   }

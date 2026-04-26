@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 import type Database from 'better-sqlite3';
 import * as forumRewardsRepo from '../database/repositories/forumRewardsRepo.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { isAdmin } from '../services/permissionService.js';
 import { crystals } from '../utils/formatting.js';
 
@@ -55,12 +56,13 @@ export async function execute(
   }
 
   const sub = interaction.options.getSubcommand();
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
   if (sub === 'set') {
     const forum = interaction.options.getChannel('forum', true);
     const amount = interaction.options.getInteger('amount', true);
     forumRewardsRepo.set(db, interaction.guildId, forum.id, amount);
     await interaction.reply({
-      content: `✅ <#${forum.id}> will pay ${crystals(amount)} per new thread.`,
+      content: `✅ <#${forum.id}> will pay ${crystals(amount, emoji)} per new thread.`,
       ephemeral: true,
     });
     return;
@@ -85,7 +87,7 @@ export async function execute(
     const embed = new EmbedBuilder()
       .setTitle('Forum thread payouts')
       .setColor(0x9b59ff)
-      .setDescription(rows.map((r) => `<#${r.forum_id}> — ${crystals(r.amount)}`).join('\n'));
+      .setDescription(rows.map((r) => `<#${r.forum_id}> — ${crystals(r.amount, emoji)}`).join('\n'));
     await interaction.reply({ embeds: [embed], ephemeral: true });
   }
 }

@@ -6,23 +6,31 @@ import { crystals } from '../utils/formatting.js';
 export function pendingRedemptionEmbed(
   redemption: RedemptionRow,
   item: ShopItemRow,
+  emoji: string,
 ): EmbedBuilder {
+  const itemDisplay = item.emoji ? `${item.emoji} ${item.name}` : item.name;
   return new EmbedBuilder()
     .setTitle(`🎁 New redemption · #${redemption.id}`)
     .setDescription(
-      `<@${redemption.user_id}> redeemed **${item.name}** for ${crystals(redemption.price_paid)}.`,
+      `<@${redemption.user_id}> redeemed **${itemDisplay}** for ${crystals(redemption.price_paid, emoji)}.`,
     )
     .addFields(
       { name: 'Item ID', value: String(item.id), inline: true },
       { name: 'Status', value: '🟡 Pending', inline: true },
       ...(item.description ? [{ name: 'Description', value: item.description }] : []),
     )
-    .setFooter({ text: `Use /redemption fulfill ${redemption.id}  or  /redemption deny ${redemption.id}` })
+    .setFooter({
+      text: `Use /redemption fulfill ${redemption.id}  or  /redemption deny ${redemption.id}`,
+    })
     .setColor(0xf1c40f)
     .setTimestamp(new Date(redemption.redeemed_at));
 }
 
-export function redemptionListEmbed(rows: RedemptionRow[], filter?: string): EmbedBuilder {
+export function redemptionListEmbed(
+  rows: RedemptionRow[],
+  emoji: string,
+  filter?: string,
+): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle('Redemptions' + (filter ? ` · ${filter}` : ''))
     .setColor(0x9b59ff);
@@ -36,7 +44,7 @@ export function redemptionListEmbed(rows: RedemptionRow[], filter?: string): Emb
     s === 'pending' ? '🟡' : s === 'fulfilled' ? '✅' : s === 'denied' ? '❌' : '•';
   const lines = rows.slice(0, 25).map(
     (r) =>
-      `${icon(r.status)} **#${r.id}** · <@${r.user_id}> · item ${r.item_id} · ${crystals(r.price_paid)}`,
+      `${icon(r.status)} **#${r.id}** · <@${r.user_id}> · item ${r.item_id} · ${crystals(r.price_paid, emoji)}`,
   );
   embed.setDescription(lines.join('\n'));
   return embed;

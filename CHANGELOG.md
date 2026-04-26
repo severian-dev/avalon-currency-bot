@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Format foll
 
 ## [Unreleased]
 
+### Changed
+- Configurable `crystal_emoji` (per guild): replaces the hardcoded 💎 in every balance, price, payout, and embed display. Set via `/setup crystal_emoji:<emoji>` or `/config set crystal_emoji <emoji>`. Falls back to 💎 if unset.
+- Per-shop-item `emoji`: `/shop-add` and `/shop-edit` accept an `emoji` field that's shown beside the item in `/shop`, in `/redeem` confirmations, the redemption-channel embed, and the `/redeem` autocomplete picker.
+
 ### Added
 - Initial scaffold: package.json, tsconfig, tsup, .gitignore, .env.example
 - `SPECIFICATION.md`, `CLAUDE.md`, `README.md`

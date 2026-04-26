@@ -29,6 +29,12 @@ export const data = new SlashCommandBuilder()
   )
   .addStringOption((o) =>
     o
+      .setName('crystal_emoji')
+      .setDescription('Emoji used everywhere the bot displays crystal counts (e.g. balances, prices)')
+      .setRequired(false),
+  )
+  .addStringOption((o) =>
+    o
       .setName('activity_drop_emoji')
       .setDescription('Emoji to react with on lucky message drops')
       .setRequired(false),
@@ -83,6 +89,12 @@ export async function execute(
   if (dailyMax !== null) {
     guildConfigRepo.set(db, interaction.guildId, 'daily_max', dailyMax);
     updates.push(`daily_max = ${dailyMax}`);
+  }
+
+  const crystalEmoji = interaction.options.getString('crystal_emoji');
+  if (crystalEmoji) {
+    guildConfigRepo.set(db, interaction.guildId, 'crystal_emoji', crystalEmoji);
+    updates.push(`crystal_emoji = ${crystalEmoji}`);
   }
 
   const activityEmoji = interaction.options.getString('activity_drop_emoji');

@@ -3,6 +3,7 @@ import type Database from 'better-sqlite3';
 import type { BotEnv } from '../config/schema.js';
 import { applyDelta } from '../services/currencyService.js';
 import { isOwner } from '../services/permissionService.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { crystals } from '../utils/formatting.js';
 
 export const data = new SlashCommandBuilder()
@@ -45,10 +46,11 @@ export async function execute(
     { allowNegativeBalance: true },
   );
 
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
   const verb = amount > 0 ? 'granted' : 'removed';
   const abs = Math.abs(amount);
   await interaction.reply({
-    content: `✅ ${verb} ${crystals(abs)} ${amount > 0 ? 'to' : 'from'} <@${target.id}>.\nNew balance: ${crystals(newBalance)}` +
+    content: `✅ ${verb} ${crystals(abs, emoji)} ${amount > 0 ? 'to' : 'from'} <@${target.id}>.\nNew balance: ${crystals(newBalance, emoji)}` +
       (reason ? `\nReason: ${reason}` : ''),
     ephemeral: true,
   });

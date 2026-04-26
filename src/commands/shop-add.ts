@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import type Database from 'better-sqlite3';
 import * as shopRepo from '../database/repositories/shopRepo.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { isAdmin } from '../services/permissionService.js';
 import { crystals } from '../utils/formatting.js';
 
@@ -24,6 +25,9 @@ export const data = new SlashCommandBuilder()
   .addStringOption((o) =>
     o.setName('payload').setDescription('Text DM\'d to user on redeem (e.g. a code)').setRequired(false),
   )
+  .addStringOption((o) =>
+    o.setName('emoji').setDescription('Emoji shown next to this item in the shop').setRequired(false),
+  )
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild.toString())
   .setDMPermission(false);
 
@@ -42,6 +46,7 @@ export async function execute(
   const stock = interaction.options.getInteger('stock');
   const description = interaction.options.getString('description');
   const payload = interaction.options.getString('payload');
+  const itemEmoji = interaction.options.getString('emoji');
 
   const id = shopRepo.add(db, interaction.guildId, {
     name,
@@ -49,12 +54,15 @@ export async function execute(
     stock: stock ?? null,
     description,
     payload,
+    emoji: itemEmoji,
     createdBy: interaction.user.id,
   });
 
+  const crystalEmoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
+  const display = itemEmoji ? `${itemEmoji} ${name}` : name;
   await interaction.reply({
     content:
-      `✅ Added shop item **#${id} · ${name}** for ${crystals(price)}` +
+      `✅ Added shop item **#${id} · ${display}** for ${crystals(price, crystalEmoji)}` +
       (stock !== null ? ` (stock: ${stock})` : ' (unlimited stock)') +
       (payload ? '\nA payload will be DM\'d on redeem.' : ''),
     ephemeral: true,

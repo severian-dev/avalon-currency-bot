@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { CRYSTAL } from '../utils/formatting.js';
+import type Database from 'better-sqlite3';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 
 export const data = new SlashCommandBuilder()
   .setName('info')
@@ -40,7 +41,7 @@ const SECTIONS: Array<{ title: string; lines: string[] }> = [
       '`/setup` — set redemption channel, give-role, daily range, drop emojis, lottery channel in one shot',
       '`/config show` — print all current config values',
       '`/config set <key> <value>` — edit any single config field (use `null` to clear)',
-      '`/shop-add <name> <price> [stock] [description] [payload]` — add a shop item',
+      '`/shop-add <name> <price> [stock] [description] [payload] [emoji]` — add a shop item',
       '`/shop-edit <id> <field> <value>` — edit a shop item',
       '`/shop-remove <id>` — soft-delete a shop item',
       '`/forum-reward set <forum> <amount>` — pay crystals on new threads in a forum',
@@ -68,9 +69,15 @@ const PASSIVE_LINES = [
   '**Forum rewards** — make a thread in a configured forum and the bot credits you crystals (one payout per thread, ever).',
 ];
 
-export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
+export async function execute(
+  interaction: ChatInputCommandInteraction,
+  db: Database.Database,
+): Promise<void> {
+  const emoji = interaction.guildId
+    ? guildConfigRepo.getCrystalEmoji(db, interaction.guildId)
+    : '💎';
   const embed = new EmbedBuilder()
-    .setTitle(`${CRYSTAL} Avalon Crystals — Command List`)
+    .setTitle(`${emoji} Avalon Crystals — Command List`)
     .setColor(0x9b59ff)
     .setDescription(SECTIONS.map((s) => `**${s.title}**\n${s.lines.join('\n')}`).join('\n\n'))
     .addFields({ name: '✨ Passive features', value: PASSIVE_LINES.join('\n\n') });

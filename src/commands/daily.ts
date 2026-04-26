@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from 'discord.js';
 import type Database from 'better-sqlite3';
 import { claimDaily, DailyOnCooldownError } from '../services/dailyService.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { crystals } from '../utils/formatting.js';
 
 export const data = new SlashCommandBuilder()
@@ -15,15 +16,16 @@ export async function execute(
   if (!interaction.guildId) return;
   try {
     const result = claimDaily(db, interaction.guildId, interaction.user.id);
+    const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
     const streakLine =
       result.streakBonus > 0
-        ? `\n🔥 Streak bonus: ${crystals(result.streakBonus)} (day ${result.newStreak})`
+        ? `\n🔥 Streak bonus: ${crystals(result.streakBonus, emoji)} (day ${result.newStreak})`
         : `\nStreak: day ${result.newStreak}`;
     await interaction.reply({
       content:
-        `🎁 You claimed **${crystals(result.amount)}**!` +
+        `🎁 You claimed **${crystals(result.amount, emoji)}**!` +
         streakLine +
-        `\nNew balance: ${crystals(result.newBalance)}`,
+        `\nNew balance: ${crystals(result.newBalance, emoji)}`,
     });
   } catch (err) {
     if (err instanceof DailyOnCooldownError) {

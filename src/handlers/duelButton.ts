@@ -8,6 +8,7 @@ import { InsufficientFundsError } from '../services/currencyService.js';
 import { duelResultEmbed } from '../builders/duelEmbed.js';
 import { parseDuelButtonId, DUEL_ACCEPT, DUEL_DECLINE } from '../types/customIds.js';
 import * as userRepo from '../database/repositories/userRepo.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { crystals } from '../utils/formatting.js';
 
 interface PendingDuel {
@@ -60,11 +61,13 @@ export async function handle(interaction: ButtonInteraction, db: Database.Databa
   // Accept path. Re-check both balances right before resolving.
   const challengerBalance = userRepo.getBalance(db, duel.guildId, duel.challengerId);
   const opponentBalance = userRepo.getBalance(db, duel.guildId, duel.opponentId);
+  const emoji = guildConfigRepo.getCrystalEmoji(db, duel.guildId);
+
   if (challengerBalance < duel.stake || opponentBalance < duel.stake) {
     pending.delete(parsed.duelKey);
     const message = interaction.message as Message;
     await message.edit({
-      content: `⚠️ Duel canceled — one of you no longer has ${crystals(duel.stake)}.`,
+      content: `⚠️ Duel canceled — one of you no longer has ${crystals(duel.stake, emoji)}.`,
       embeds: [],
       components: [],
       allowedMentions: { users: [] },
@@ -80,7 +83,7 @@ export async function handle(interaction: ButtonInteraction, db: Database.Databa
     const message = interaction.message as Message;
     await message.edit({
       content: '',
-      embeds: [duelResultEmbed(r.winnerId, r.loserId, duel.stake)],
+      embeds: [duelResultEmbed(r.winnerId, r.loserId, duel.stake, emoji)],
       components: [],
       allowedMentions: { users: [r.winnerId, r.loserId] },
     });

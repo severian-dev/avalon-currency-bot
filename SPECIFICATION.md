@@ -65,6 +65,7 @@ shop_items
   price           INTEGER NOT NULL
   stock           INTEGER           -- NULL = unlimited
   payload         TEXT              -- optional text DM'd on redeem (e.g. a code)
+  emoji           TEXT              -- optional emoji shown beside the item in /shop
   active          INTEGER NOT NULL DEFAULT 1
   created_by      TEXT
   created_at      TEXT DEFAULT (datetime('now'))
@@ -188,6 +189,9 @@ guild_config
   lottery_ticket_price                  INTEGER NOT NULL DEFAULT 100
   lottery_draw_channel_id               TEXT
   lottery_period_hours                  INTEGER NOT NULL DEFAULT 168  -- 1 week between draws
+
+  -- branding
+  crystal_emoji                         TEXT  -- replaces 💎 in every balance/price display; falls back to 💎 if unset
 ```
 
 All `_at` columns are ISO-8601 strings written via `datetime('now')`.

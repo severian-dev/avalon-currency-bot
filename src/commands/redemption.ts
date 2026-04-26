@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import type Database from 'better-sqlite3';
 import * as redemptionRepo from '../database/repositories/redemptionRepo.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { fulfill, refund } from '../services/shopService.js';
 import { redemptionListEmbed } from '../builders/redemptionEmbed.js';
 import { isAdmin } from '../services/permissionService.js';
@@ -60,6 +61,7 @@ export async function execute(
   }
 
   const sub = interaction.options.getSubcommand();
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
 
   if (sub === 'list') {
     const status = interaction.options.getString('status') as
@@ -69,7 +71,7 @@ export async function execute(
       | null;
     const rows = redemptionRepo.list(db, interaction.guildId, status ?? undefined, 25);
     await interaction.reply({
-      embeds: [redemptionListEmbed(rows, status ?? undefined)],
+      embeds: [redemptionListEmbed(rows, emoji, status ?? undefined)],
       ephemeral: true,
       allowedMentions: { parse: [] },
     });
@@ -99,7 +101,7 @@ export async function execute(
       return;
     }
     await interaction.reply({
-      content: `✅ Denied #${id}. Refunded ${crystals(result.amount)} to <@${result.userId}>. New balance: ${crystals(result.newBalance)}.`,
+      content: `✅ Denied #${id}. Refunded ${crystals(result.amount, emoji)} to <@${result.userId}>. New balance: ${crystals(result.newBalance, emoji)}.`,
       ephemeral: true,
       allowedMentions: { parse: [] },
     });

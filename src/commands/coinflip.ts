@@ -29,9 +29,10 @@ export async function execute(
   const guess = interaction.options.getString('call', true) as 'heads' | 'tails';
 
   const config = guildConfigRepo.get(db, interaction.guildId);
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
   if (stake < config.bet_min || stake > config.bet_max) {
     await interaction.reply({
-      content: `Bets must be between ${crystals(config.bet_min)} and ${crystals(config.bet_max)}.`,
+      content: `Bets must be between ${crystals(config.bet_min, emoji)} and ${crystals(config.bet_max, emoji)}.`,
       ephemeral: true,
     });
     return;
@@ -41,13 +42,13 @@ export async function execute(
     const r = coinflip(db, interaction.guildId, interaction.user.id, stake, guess);
     const face = r.outcome === 'heads' ? '🪙 heads' : '🪙 tails';
     const verdict = r.win
-      ? `🎉 You called ${guess} — it's ${face}! You win ${crystals(stake)}.`
-      : `😬 You called ${guess} — it's ${face}. You lose ${crystals(stake)}.`;
-    await interaction.reply(`${verdict}\nNew balance: ${crystals(r.newBalance)}`);
+      ? `🎉 You called ${guess} — it's ${face}! You win ${crystals(stake, emoji)}.`
+      : `😬 You called ${guess} — it's ${face}. You lose ${crystals(stake, emoji)}.`;
+    await interaction.reply(`${verdict}\nNew balance: ${crystals(r.newBalance, emoji)}`);
   } catch (err) {
     if (err instanceof InsufficientFundsError) {
       await interaction.reply({
-        content: `⛔ You only have ${crystals(err.balance)}.`,
+        content: `⛔ You only have ${crystals(err.balance, emoji)}.`,
         ephemeral: true,
       });
       return;

@@ -51,6 +51,8 @@ export async function execute(
     return;
   }
 
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
+
   try {
     const { fromBalance } = transfer(
       db,
@@ -61,14 +63,14 @@ export async function execute(
       'give',
     );
     await interaction.reply({
-      content: `✨ <@${interaction.user.id}> gave ${crystals(amount)} to <@${target.id}>!\n` +
-        `Your balance: ${crystals(fromBalance)}`,
+      content: `✨ <@${interaction.user.id}> gave ${crystals(amount, emoji)} to <@${target.id}>!\n` +
+        `Your balance: ${crystals(fromBalance, emoji)}`,
       allowedMentions: { users: [target.id] },
     });
   } catch (err) {
     if (err instanceof InsufficientFundsError) {
       await interaction.reply({
-        content: `⛔ You only have ${crystals(err.balance)}.`,
+        content: `⛔ You only have ${crystals(err.balance, emoji)}.`,
         ephemeral: true,
       });
       return;

@@ -7,7 +7,7 @@ import type Database from 'better-sqlite3';
 import * as shopRepo from '../database/repositories/shopRepo.js';
 import { isAdmin } from '../services/permissionService.js';
 
-const FIELDS = ['name', 'description', 'price', 'stock', 'payload', 'active'] as const;
+const FIELDS = ['name', 'description', 'price', 'stock', 'payload', 'emoji', 'active'] as const;
 
 export const data = new SlashCommandBuilder()
   .setName('shop-edit')
@@ -69,7 +69,7 @@ export async function execute(
     }
   } else if (field === 'active') {
     value = rawValue === '1' || rawValue.toLowerCase() === 'true' ? 1 : 0;
-  } else if (field === 'description' || field === 'payload') {
+  } else if (field === 'description' || field === 'payload' || field === 'emoji') {
     value = rawValue === 'null' ? null : rawValue;
   } else {
     value = rawValue;

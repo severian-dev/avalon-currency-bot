@@ -8,6 +8,7 @@ export interface ShopItemRow {
   price: number;
   stock: number | null;
   payload: string | null;
+  emoji: string | null;
   active: number;
   created_by: string | null;
   created_at: string;
@@ -16,12 +17,20 @@ export interface ShopItemRow {
 export function add(
   db: Database.Database,
   guildId: string,
-  fields: { name: string; price: number; description?: string | null; stock?: number | null; payload?: string | null; createdBy?: string },
+  fields: {
+    name: string;
+    price: number;
+    description?: string | null;
+    stock?: number | null;
+    payload?: string | null;
+    emoji?: string | null;
+    createdBy?: string;
+  },
 ): number {
   const result = db
     .prepare(
-      `INSERT INTO shop_items (guild_id, name, description, price, stock, payload, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO shop_items (guild_id, name, description, price, stock, payload, emoji, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       guildId,
@@ -30,6 +39,7 @@ export function add(
       fields.price,
       fields.stock ?? null,
       fields.payload ?? null,
+      fields.emoji ?? null,
       fields.createdBy ?? null,
     );
   return Number(result.lastInsertRowid);
@@ -72,7 +82,7 @@ export function update(
   db: Database.Database,
   guildId: string,
   id: number,
-  field: 'name' | 'description' | 'price' | 'stock' | 'payload' | 'active',
+  field: 'name' | 'description' | 'price' | 'stock' | 'payload' | 'emoji' | 'active',
   value: string | number | null,
 ): void {
   db.prepare(`UPDATE shop_items SET ${field} = ? WHERE id = ? AND guild_id = ?`).run(

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from 'discord.js';
 import type Database from 'better-sqlite3';
 import * as userRepo from '../database/repositories/userRepo.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { balanceEmbed } from '../builders/balanceEmbed.js';
 
 export const data = new SlashCommandBuilder()
@@ -20,5 +21,6 @@ export async function execute(
   const row = userRepo.get(db, interaction.guildId, target.id);
   const balance = row?.balance ?? 0;
   const streak = target.id === interaction.user.id ? row?.daily_streak ?? null : null;
-  await interaction.reply({ embeds: [balanceEmbed(target, balance, streak)] });
+  const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
+  await interaction.reply({ embeds: [balanceEmbed(target, balance, streak, emoji)] });
 }

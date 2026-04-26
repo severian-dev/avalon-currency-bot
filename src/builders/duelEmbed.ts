@@ -6,11 +6,12 @@ export function duelChallengeEmbed(
   challengerId: string,
   opponentId: string,
   stake: number,
+  emoji: string,
 ): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle('⚔️ Crystal Duel')
     .setDescription(
-      `<@${challengerId}> challenges <@${opponentId}> to a duel for **${crystals(stake)}**!\n` +
+      `<@${challengerId}> challenges <@${opponentId}> to a duel for **${crystals(stake, emoji)}**!\n` +
         `<@${opponentId}>, you have 60 seconds to accept.`,
     )
     .setColor(0xe67e22);
@@ -33,11 +34,10 @@ export function duelResultEmbed(
   winnerId: string,
   loserId: string,
   stake: number,
+  emoji: string,
 ): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle('⚔️ Duel resolved')
-    .setDescription(
-      `<@${winnerId}> wins ${crystals(stake)} from <@${loserId}>!`,
-    )
+    .setDescription(`<@${winnerId}> wins ${crystals(stake, emoji)} from <@${loserId}>!`)
     .setColor(0x2ecc71);
 }

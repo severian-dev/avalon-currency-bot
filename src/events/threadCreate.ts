@@ -1,6 +1,7 @@
 import { ChannelType, type AnyThreadChannel } from 'discord.js';
 import type Database from 'better-sqlite3';
 import * as forumRewardsRepo from '../database/repositories/forumRewardsRepo.js';
+import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
 import { applyDelta } from '../services/currencyService.js';
 import { crystals } from '../utils/formatting.js';
 
@@ -48,9 +49,10 @@ export async function execute(
     { allowNegativeBalance: true },
   );
 
+  const emoji = guildConfigRepo.getCrystalEmoji(db, thread.guild.id);
   try {
     await thread.send({
-      content: `<@${thread.ownerId}> earned ${crystals(reward.amount)} for posting in <#${thread.parentId}>!`,
+      content: `<@${thread.ownerId}> earned ${crystals(reward.amount, emoji)} for posting in <#${thread.parentId}>!`,
       allowedMentions: { users: [thread.ownerId] },
     });
   } catch (err) {
