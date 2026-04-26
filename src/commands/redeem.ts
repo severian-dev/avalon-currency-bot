@@ -2,8 +2,6 @@ import {
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
   type AutocompleteInteraction,
-  TextChannel,
-  ChannelType,
 } from 'discord.js';
 import type Database from 'better-sqlite3';
 import { redeem, ItemUnavailableError } from '../services/shopService.js';
@@ -94,17 +92,33 @@ export async function execute(
 
   const redemption = redemptionRepo.getById(db, interaction.guildId, result.redemptionId);
   if (item && redemption) {
+    let postFailureReason: string | null = null;
     try {
       const channel = await interaction.client.channels.fetch(config.redemption_channel_id);
-      if (channel && channel.type === ChannelType.GuildText) {
-        await (channel as TextChannel).send({
+      if (!channel) {
+        postFailureReason = 'channel not found (it may have been deleted)';
+      } else if (!channel.isTextBased() || !('send' in channel)) {
+        postFailureReason = `channel <#${config.redemption_channel_id}> is not a text channel`;
+      } else {
+        await channel.send({
           content: `<@${interaction.user.id}>`,
           embeds: [pendingRedemptionEmbed(redemption, item, emoji)],
           allowedMentions: { users: [] },
         });
       }
     } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e);
       console.error('Failed to post redemption to channel:', e);
+      postFailureReason = `${reason} (check that I have Send Messages + Embed Links in <#${config.redemption_channel_id}>)`;
+    }
+
+    if (postFailureReason) {
+      await interaction.followUp({
+        content:
+          `⚠️ Your redemption #${result.redemptionId} was recorded, but I couldn't post it to the admin channel: ${postFailureReason}.\n` +
+          `Please ping an admin so they can fulfill it manually.`,
+        ephemeral: true,
+      });
     }
   }
 

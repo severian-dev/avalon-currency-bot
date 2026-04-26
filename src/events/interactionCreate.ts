@@ -6,6 +6,7 @@ import type Database from 'better-sqlite3';
 import type { BotClient } from '../client.js';
 import type { BotEnv } from '../config/schema.js';
 import { handle as handleDuelButton } from '../handlers/duelButton.js';
+import { handle as handleShopButton } from '../handlers/shopButton.js';
 import * as redeemCommand from '../commands/redeem.js';
 import * as configCommand from '../commands/config.js';
 
@@ -31,8 +32,8 @@ export async function execute(
 
   if (interaction.isButton()) {
     try {
-      const handled = await handleDuelButton(interaction, db);
-      if (handled) return;
+      if (await handleShopButton(interaction, db)) return;
+      if (await handleDuelButton(interaction, db)) return;
     } catch (err) {
       console.error('button handler error:', err);
       if (!interaction.replied && !interaction.deferred) {

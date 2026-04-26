@@ -65,6 +65,28 @@ export function listActive(db: Database.Database, guildId: string): ShopItemRow[
     .all(guildId);
 }
 
+export function listActivePage(
+  db: Database.Database,
+  guildId: string,
+  offset: number,
+  limit: number,
+): ShopItemRow[] {
+  return db
+    .prepare<[string, number, number], ShopItemRow>(
+      `SELECT * FROM shop_items WHERE guild_id = ? AND active = 1 ORDER BY price ASC, id ASC LIMIT ? OFFSET ?`,
+    )
+    .all(guildId, limit, offset);
+}
+
+export function countActive(db: Database.Database, guildId: string): number {
+  const r = db
+    .prepare<[string], { c: number }>(
+      `SELECT COUNT(*) AS c FROM shop_items WHERE guild_id = ? AND active = 1`,
+    )
+    .get(guildId);
+  return r?.c ?? 0;
+}
+
 export function searchActive(
   db: Database.Database,
   guildId: string,

@@ -10,3 +10,15 @@ export function parseDuelButtonId(customId: string): { prefix: string; duelKey: 
   if (!a || !b || !c) return null;
   return { prefix: `${a}:${b}`, duelKey: c };
 }
+
+export const SHOP_PAGE_PREFIX = 'shop:page:';
+
+export function buildShopPageId(page: number): string {
+  return `${SHOP_PAGE_PREFIX}${page}`;
+}
+
+export function parseShopPageId(customId: string): number | null {
+  if (!customId.startsWith(SHOP_PAGE_PREFIX)) return null;
+  const n = parseInt(customId.slice(SHOP_PAGE_PREFIX.length), 10);
+  return Number.isNaN(n) ? null : n;
+}

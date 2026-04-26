@@ -2,7 +2,7 @@ import { SlashCommandBuilder, type ChatInputCommandInteraction } from 'discord.j
 import type Database from 'better-sqlite3';
 import * as shopRepo from '../database/repositories/shopRepo.js';
 import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
-import { shopEmbed } from '../builders/shopEmbed.js';
+import { shopEmbed, shopButtons, SHOP_PAGE_SIZE } from '../builders/shopEmbed.js';
 
 export const data = new SlashCommandBuilder()
   .setName('shop')
@@ -14,7 +14,14 @@ export async function execute(
   db: Database.Database,
 ): Promise<void> {
   if (!interaction.guildId) return;
-  const items = shopRepo.listActive(db, interaction.guildId);
+
+  const total = shopRepo.countActive(db, interaction.guildId);
+  const items = shopRepo.listActivePage(db, interaction.guildId, 0, SHOP_PAGE_SIZE);
   const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
-  await interaction.reply({ embeds: [shopEmbed(items, emoji)] });
+
+  const buttons = shopButtons(0, total);
+  await interaction.reply({
+    embeds: [shopEmbed(items, emoji, 0, total)],
+    components: buttons ? [buttons] : [],
+  });
 }
