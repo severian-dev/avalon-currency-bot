@@ -15,4 +15,5 @@ All notable changes to this project will be documented in this file. Format foll
 - Gambling: `/coinflip` (50/50 2x), `/slots` (3-reel emoji slots, fixed pay table, ~4% house edge), `/duel` (button-confirm consensual PvP), `/lottery buy|info` with weighted draw
 - Passive listeners: `messageCreate` (channel activity tracking + per-message lucky drops with reaction emoji), `threadCreate` (forum payouts with idempotency on `forum_payouts.thread_id` and acknowledgement reply), `messageReactionAdd` (single-winner claim drops with atomic claim, channel confirmation, and message edit)
 - Schedulers: claim-drop tick (60s) gating on `channel_activity.last_message_at` for active-channel-only drops, plus expiry sweep; lottery scheduler that draws due rounds, posts results, and opens the next round
-- Command deploy script (`npm run deploy-commands`) registers all 21 slash commands
+- Command deploy script (`npm run deploy-commands`) registers all 22 slash commands
+- `/info` — single ephemeral command listing every command grouped by category (Everyone, Gambling, Role-gated, Admin, Owner) plus a passive-features section

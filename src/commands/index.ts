@@ -1,4 +1,5 @@
 import type { BotClient, Command } from '../client.js';
+import * as info from './info.js';
 import * as balance from './balance.js';
 import * as daily from './daily.js';
 import * as give from './give.js';
@@ -22,6 +23,7 @@ import * as duel from './duel.js';
 import * as lottery from './lottery.js';
 
 const commands: Command[] = [
+  info,
   balance,
   daily,
   give,
