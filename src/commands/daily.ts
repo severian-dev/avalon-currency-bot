@@ -17,15 +17,9 @@ export async function execute(
   try {
     const result = claimDaily(db, interaction.guildId, interaction.user.id);
     const emoji = guildConfigRepo.getCrystalEmoji(db, interaction.guildId);
-    const streakLine =
-      result.streakBonus > 0
-        ? `\n🔥 Streak bonus: ${crystals(result.streakBonus, emoji)} (day ${result.newStreak})`
-        : `\nStreak: day ${result.newStreak}`;
+    const bonus = result.streakBonus > 0 ? ` (+${result.streakBonus} streak bonus)` : '';
     await interaction.reply({
-      content:
-        `🎁 You claimed **${crystals(result.amount, emoji)}**!` +
-        streakLine +
-        `\nNew balance: ${crystals(result.newBalance, emoji)}`,
+      content: `🎁 Claimed **${crystals(result.amount, emoji)}**${bonus} · 🔥 Day ${result.newStreak} · Balance: **${crystals(result.newBalance, emoji)}**`,
     });
   } catch (err) {
     if (err instanceof DailyOnCooldownError) {
