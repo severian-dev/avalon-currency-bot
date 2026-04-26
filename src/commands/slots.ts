@@ -3,7 +3,10 @@ import type Database from 'better-sqlite3';
 import { slots } from '../services/gamblingService.js';
 import { InsufficientFundsError } from '../services/currencyService.js';
 import * as guildConfigRepo from '../database/repositories/guildConfigRepo.js';
+import { checkAndStamp } from '../services/cooldownService.js';
 import { crystals } from '../utils/formatting.js';
+
+const GAMBLING_COOLDOWN_SECONDS = 5;
 
 export const data = new SlashCommandBuilder()
   .setName('slots')
@@ -18,6 +21,19 @@ export async function execute(
   db: Database.Database,
 ): Promise<void> {
   if (!interaction.guildId) return;
+
+  const remaining = checkAndStamp(
+    `gamble:${interaction.guildId}:${interaction.user.id}`,
+    GAMBLING_COOLDOWN_SECONDS,
+  );
+  if (remaining !== null) {
+    await interaction.reply({
+      content: `⏳ Slow down — try again in ${remaining}s.`,
+      ephemeral: true,
+    });
+    return;
+  }
+
   const stake = interaction.options.getInteger('amount', true);
 
   const config = guildConfigRepo.get(db, interaction.guildId);

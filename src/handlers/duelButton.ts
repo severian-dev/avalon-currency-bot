@@ -1,7 +1,4 @@
-import {
-  type ButtonInteraction,
-  type Message,
-} from 'discord.js';
+import { type ButtonInteraction } from 'discord.js';
 import type Database from 'better-sqlite3';
 import { resolveDuel } from '../services/gamblingService.js';
 import { InsufficientFundsError } from '../services/currencyService.js';
@@ -47,14 +44,12 @@ export async function handle(interaction: ButtonInteraction, db: Database.Databa
 
   if (parsed.prefix === DUEL_DECLINE) {
     pending.delete(parsed.duelKey);
-    const message = interaction.message as Message;
-    await message.edit({
+    await interaction.update({
       content: `🛑 <@${duel.opponentId}> declined the duel.`,
       embeds: [],
       components: [],
       allowedMentions: { users: [] },
     });
-    await interaction.deferUpdate();
     return true;
   }
 
@@ -65,14 +60,12 @@ export async function handle(interaction: ButtonInteraction, db: Database.Databa
 
   if (challengerBalance < duel.stake || opponentBalance < duel.stake) {
     pending.delete(parsed.duelKey);
-    const message = interaction.message as Message;
-    await message.edit({
+    await interaction.update({
       content: `⚠️ Duel canceled — one of you no longer has ${crystals(duel.stake, emoji)}.`,
       embeds: [],
       components: [],
       allowedMentions: { users: [] },
     });
-    await interaction.deferUpdate();
     return true;
   }
 
@@ -80,14 +73,12 @@ export async function handle(interaction: ButtonInteraction, db: Database.Databa
 
   try {
     const r = resolveDuel(db, duel.guildId, duel.challengerId, duel.opponentId, duel.stake);
-    const message = interaction.message as Message;
-    await message.edit({
+    await interaction.update({
       content: '',
       embeds: [duelResultEmbed(r.winnerId, r.loserId, duel.stake, emoji)],
       components: [],
       allowedMentions: { users: [r.winnerId, r.loserId] },
     });
-    await interaction.deferUpdate();
   } catch (err) {
     if (err instanceof InsufficientFundsError) {
       await interaction.reply({

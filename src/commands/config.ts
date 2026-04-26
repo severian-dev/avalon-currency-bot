@@ -57,7 +57,7 @@ export const data = new SlashCommandBuilder()
       .addStringOption((o) =>
         o
           .setName('key')
-          .setDescription('Config key')
+          .setDescription("Config key (start typing to filter — e.g. 'lottery', 'claim', 'activity')")
           .setRequired(true)
           .setAutocomplete(true),
       )

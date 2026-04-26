@@ -1,7 +1,6 @@
 import {
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
-  type Message,
 } from 'discord.js';
 import type Database from 'better-sqlite3';
 import * as userRepo from '../database/repositories/userRepo.js';
@@ -83,16 +82,17 @@ export async function execute(
 
   setTimeout(async () => {
     try {
-      const message = (await interaction.fetchReply()) as Message;
+      const message = await interaction.fetchReply();
       if (message.components?.length) {
-        await message.edit({
+        await interaction.editReply({
           components: [],
           content: `⌛ Duel offer to <@${opponent.id}> expired.`,
+          embeds: [],
           allowedMentions: { users: [] },
         });
       }
     } catch {
-      // best-effort
+      // best-effort: interaction may have already been resolved
     }
   }, 60_000).unref();
 }

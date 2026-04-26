@@ -41,38 +41,49 @@ export interface GuildConfigRow {
   crystal_emoji: string | null;
 }
 
+// Order matters: this is the order shown in /config set autocomplete with an
+// empty query, and Discord caps the list at 25. Put the most-toggled keys
+// first so they're visible without typing.
 export const ALLOWED_KEYS = [
+  // master toggles
+  'activity_enabled',
+  'claim_drops_enabled',
+  'lottery_enabled',
+  // emojis
+  'crystal_emoji',
+  'activity_drop_emoji',
+  'claim_drop_emoji',
+  // channels & role
   'redemption_channel_id',
   'give_role_id',
+  'lottery_draw_channel_id',
+  // daily basics
   'daily_min',
   'daily_max',
-  'daily_streak_bonus',
-  'daily_streak_cap',
-  'activity_enabled',
+  // bets and lottery economics
+  'bet_min',
+  'bet_max',
+  'lottery_ticket_price',
+  'lottery_period_hours',
+  // activity drop tuning
   'activity_drop_chance',
   'activity_drop_min',
   'activity_drop_max',
-  'activity_drop_cooldown_seconds',
   'activity_drop_daily_cap',
-  'activity_drop_emoji',
-  'claim_drops_enabled',
+  // claim drop tuning (most relevant)
   'claim_drop_min',
   'claim_drop_max',
   'claim_drop_window_seconds',
   'claim_drop_active_window_minutes',
+  'claim_drop_min_gap_minutes',
+  // less commonly tuned (positions 26+ — only shown when query filters them in)
   'claim_drop_probability_per_tick',
   'claim_drop_tick_seconds',
-  'claim_drop_emoji',
-  'claim_drop_min_gap_minutes',
-  'bet_min',
-  'bet_max',
-  'slots_house_edge_bps',
+  'activity_drop_cooldown_seconds',
+  'daily_streak_bonus',
+  'daily_streak_cap',
   'duel_announce_channel_id',
-  'lottery_enabled',
-  'lottery_ticket_price',
-  'lottery_draw_channel_id',
-  'lottery_period_hours',
-  'crystal_emoji',
+  'slots_house_edge_bps',
 ] as const;
 
 export type ConfigKey = (typeof ALLOWED_KEYS)[number];
