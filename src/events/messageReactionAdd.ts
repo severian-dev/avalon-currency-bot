@@ -1,6 +1,7 @@
 import {
   type MessageReaction,
   type PartialMessageReaction,
+  type MessageReactionEventDetails,
   type User,
   type PartialUser,
   TextChannel,
@@ -16,6 +17,7 @@ export const name = 'messageReactionAdd';
 export async function execute(
   reaction: MessageReaction | PartialMessageReaction,
   user: User | PartialUser,
+  _details: MessageReactionEventDetails,
   db: Database.Database,
 ): Promise<void> {
   try {
