@@ -1,0 +1,35 @@
+{
+  "name": "avalon-currency-bot",
+  "version": "0.1.0",
+  "description": "Discord currency bot for the Avalon server. Tracks 'crystals', runs a redeemable shop, daily/grants/transfers, forum-post rewards, random message drops, scheduled claim drops, and gambling minigames.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx --env-file=.env src/index.ts",
+    "build": "tsup",
+    "start": "node --env-file=.env dist/index.js",
+    "deploy-commands": "tsx --env-file=.env src/deploy-commands.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types src/tests/**/*.test.ts"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "currency",
+    "economy",
+    "avalon"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "discord.js": "^14.25.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.0.10",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
