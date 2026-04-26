@@ -19,6 +19,5 @@ export function balanceEmbed(
       inline: true,
     });
   }
-  embed.setFooter({ text: emoji });
   return embed;
 }
